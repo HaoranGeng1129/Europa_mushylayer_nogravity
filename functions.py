@@ -173,7 +173,7 @@ def calculate_overpressure_term(state, V):
     """ 
     dP = 1/β ln[(M_0 - ρ_s Σ_i (1 - χ) V_i) / (ρ_0 Σ_i exp{β_S(C - C_0) χ V_i })]
     """
-    M_0 = np.sum(p.rho_0 * V)
+    M_0 = np.sum(p.rho_b * V)
     numerator = M_0 - p.rho_s * np.sum((1 - state.chi) * V)
     denominator = p.rho_0 * np.sum(np.exp(p.beta_S * (state.C - p.C_0)) * state.chi * V )
 

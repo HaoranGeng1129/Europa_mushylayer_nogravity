@@ -4,7 +4,6 @@
 
 import numpy as np 
 
-
 from classes import p, State
 from functions import (
             calculate_liquid_enthalpy, 
@@ -43,9 +42,9 @@ state = State(
         h_l = np.zeros(N), 
         h_s = np.zeros(N), 
         S = np.zeros(N), 
-        rho_l = np.full(N, p.rho_0), 
+        rho_l = np.full(N, p.rho_b), 
         T = np.full(N, p.T_0), 
-        C = np.full(N, p.C_0), 
+        C = np.full(N, p.C_init), 
         chi = np.ones(N), 
         dP = 0.0, 
         u_r = np.zeros(N + 1), 
@@ -53,16 +52,18 @@ state = State(
         q = np.zeros(N + 1), 
         h_faces = np.zeros(N + 1), 
         C_faces = np.zeros(N + 1), 
-        rho_l_faces = np.zeros(N + 1), 
+        rho_l_faces = np.full(N + 1, p.rho_b), 
         rho_l_old = np.zeros(N), 
         chi_old = np.zeros(N)
               ) 
 
+
+state.rho_l = calculate_liquid_density(state)
 state.h_l = calculate_liquid_enthalpy(state)
 state.h_s = calculate_ice_enthalpy(state)
 state.H   = calculate_enthalpy(state)
 state.S   = calculate_bulk_salinity(state)
-state.rho_l = calculate_liquid_density(state)
+
 
 
 
