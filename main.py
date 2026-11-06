@@ -107,6 +107,6 @@ while i < N_iter:
     i += 1
 
 # Plot the temporal evolutions
-animation = animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history, p, d.dt)
+animation = animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history)
 
 

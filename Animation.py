@@ -1,10 +1,11 @@
-# Plotting the evolution of the profile
-
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from classes import d
+from classes import p, d
 
-def animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history, p, dt):
+####################################################################################
+# Plotting the evolution of the profile
+####################################################################################
+def animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history):
     """ 
     Creates an animation that displays the temporal evolution of temperature, liquid 
     density, enthalpy, and bulk salinity. 
@@ -51,7 +52,7 @@ def animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history, 
         enthalpy_plot.set_data(d.r_c, H_history[frame])
         bulk_salinity_plot.set_data(d.r_c, S_history[frame])
 
-        t_years = (100 * frame + 1) * dt / (365.25 * 24 * 3600)
+        t_years = (100 * frame + 1) * d.dt / (365.25 * 24 * 3600)
         clock.set_text(f"t = {t_years:.2f} years")
 
         return temperature_plot, liquid_density_plot, enthalpy_plot, bulk_salinity_plot, clock
