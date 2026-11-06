@@ -1,10 +1,10 @@
 ####################################################################################
-# Set up
+# Main script
 ####################################################################################
 
 import numpy as np 
 
-from classes import p, State
+from classes import p, d, State
 from functions import (
             calculate_liquid_enthalpy, 
             calculate_ice_enthalpy, 
@@ -20,41 +20,28 @@ from functions import (
                        )
 
 from phase_mask_and_inversion import inversion
-
+from Animation import animate_evolutions_profiles
 
 N_iter = 100000      # number of iterations
 
-R   = 500.0               # m, radius of the spherical inclusion
-M_0 = p.rho_0 * R**3 / 3  # kg, mass of the entire inclusion divided by 4π
-N   = 10000               # number of cells in the domain 
-dr  = R / N               # radial distance increment
-
-r_f = np.arange(0, N + 1, 1) * dr           # Coordinates of the cell faces
-r   = r_f[: -1] + dr / 2                    # Coordinates of the cell centers
-A   = r_f ** 2    # area 
-V   = (r_f[1:] ** 3 - r_f[:-1] ** 3) / 3    # volume
-
-dt = dr ** 2 /(2 * p.alpha * 10)  # time increment, HAVENT EXPLAINED ORIGIN
-
-
 state = State(
-        H = np.zeros(N), 
-        h_l = np.zeros(N), 
-        h_s = np.zeros(N), 
-        S = np.zeros(N), 
-        rho_l = np.full(N, p.rho_b), 
-        T = np.full(N, p.T_0), 
-        C = np.full(N, p.C_init), 
-        chi = np.ones(N), 
+        H = np.zeros(d.N), 
+        h_l = np.zeros(d.N), 
+        h_s = np.zeros(d.N), 
+        S = np.zeros(d.N), 
+        rho_l = np.full(d.N, p.rho_b), 
+        T = np.full(d.N, p.T_0), 
+        C = np.full(d.N, p.C_init), 
+        chi = np.ones(d.N),
         dP = 0.0, 
-        u_r = np.zeros(N + 1), 
-        J = np.zeros(N + 1), 
-        q = np.zeros(N + 1), 
-        h_faces = np.zeros(N + 1), 
-        C_faces = np.zeros(N + 1), 
-        rho_l_faces = np.full(N + 1, p.rho_b), 
-        rho_l_old = np.zeros(N), 
-        chi_old = np.zeros(N)
+        u_r = np.zeros(d.N + 1), 
+        J = np.zeros(d.N + 1), 
+        q = np.zeros(d.N + 1), 
+        h_faces = np.zeros(d.N + 1), 
+        C_faces = np.zeros(d.N + 1), 
+        rho_l_faces = np.full(d.N + 1, p.rho_b), 
+        rho_l_old = np.zeros(d.N), 
+        chi_old = np.zeros(d.N)
               ) 
 
 
@@ -66,37 +53,38 @@ state.S   = calculate_bulk_salinity(state)
 
 
 
-
 # Iteration index        
 i = 0
-T_history = np.zeros((N_iter // 100, N))  # Store temperature profile for plotting
+T_history     = np.zeros((N_iter // 100, d.N))  # store temperature profile for plotting
+rho_l_history = np.zeros((N_iter // 100, d.N))  # liquid density
+H_history     = np.zeros((N_iter // 100, d.N))  # enthalpy
+S_history     = np.zeros((N_iter // 100, d.N))  # bulk salinity
+
 
 while i < N_iter:
 
     # Update heat fluxes, h_faces, C_faces
-    state.q   = calculate_heat_flux(state, dr)
+    state.q   = calculate_heat_flux(state, d.dr)
     h_faces   = calculate_liquid_enthalpy_at_faces(state)
     C_faces   = calculate_liquid_salinity_at_faces(state)
    
     # Update enthalpy without overpressure term and bulk salinity
-    H_flux = state.J * h_faces + A * state.q   # enthalpic flux at the faces
+    H_flux = state.J * h_faces + d.A * state.q   # enthalpic flux at the faces
     S_flux = state.J * C_faces
-    state.H -= dt * (H_flux[1: ] - H_flux[: -1]) / V
-    state.S -= dt * (S_flux[1: ] - S_flux[: -1]) / V
+    state.H -= d.dt * (H_flux[1: ] - H_flux[: -1]) / d.V
+    state.S -= d.dt * (S_flux[1: ] - S_flux[: -1]) / d.V
 
     # Copies previous values for calculation of brine flux, J
     state.rho_l_old = state.rho_l.copy()
     state.chi_old   = state.chi.copy()
 
     # Inversion
-    state.chi, state.T, state.C = inversion(state)
-    if i % 100 == 0:
-        T_history[i // 100, :] = state.T.copy()  # Store temperature profile for plotting
+    state.chi, state.T, state.C = inversion(state)  
 
     # Obtain dP using the new parameters from inversion(), and update 
     # the enthalpy accounting for the overpressure term
     dP_old = state.dP
-    state.dP = calculate_overpressure_term(state, V)
+    state.dP = calculate_overpressure_term(state, d.V)
     increase_in_dP = state.dP - dP_old 
 
     state.H += increase_in_dP
@@ -105,55 +93,20 @@ while i < N_iter:
     state.rho_l = calculate_liquid_density(state)
 
     # Calculate brine flux. comes after new rho_l values are created
-    state.J = calculate_brine_flux(state, V, dt) 
+    state.J = calculate_brine_flux(state, d.V, d.dt) 
 
     # Compute u_r using mass conservation 
-    state.u_r = calculate_radial_speed(state, r_f)
+    state.u_r = calculate_radial_speed(state, d.r_f)
+
+    if i % 100 == 0:
+            T_history[i // 100, :]     = state.T.copy()  # store temperature profile for plotting
+            rho_l_history[i // 100, :] = state.rho_l.copy() # liquid density 
+            H_history[i // 100, :]     = state.H.copy()  # enthalpy
+            S_history[i // 100, :]     = state.S.copy()  # bulk salinity
 
     i += 1
 
+# Plot the temporal evolutions
+animation = animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history, p, d.dt)
 
 
-
-
-
-
-# Plotting the evolution of the temperature profile
-
-
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import numpy as np
-
-
-fig, axis = plt.subplots()
-axis.set_xlim(R - 100, R)
-axis.set_ylim(260, 280)
-axis.set_xlabel("r (m)")
-axis.set_ylabel("T (K)")
-axis.set_title("Temperature profile in the spherical inclusion")
-
-animated_plot = axis.plot([], [])
- 
-
-def update_data(frame):
-    """ 
-    Updates the inputs for the plot at each frame of the animation.
-    """
-    animated_plot[0].set_data(r, T_history[frame])
-
-    return animated_plot
-
-
-# Animation function
-animation = FuncAnimation(
-                    fig = fig, 
-                    func = update_data,
-                    frames = len(T_history) ,  
-                    interval = 25
-                          )
-
-
-
-
-plt.show()

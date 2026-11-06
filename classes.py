@@ -1,9 +1,8 @@
 import numpy as np
 from dataclasses import dataclass
 
-
 ####################################################################################
-# Store Parameters (frozen)
+# Store Physical Parameters (frozen)
 ####################################################################################
 
 @dataclass(frozen=True)
@@ -11,7 +10,7 @@ class Physical_Parameters:
 
     # Temperature related parameters
     T_m : float = 273.15     # K, pure water freezing temperature
-    T_B : float = 264.0      # K, temperature of spherical inclusion boundary 
+    T_B : float = 222.0      # K, temperature of spherical inclusion boundary 
     T_0 : float = 275.0      # K, initial temperature of the liquid
     C_pl : int = 3985        # Jkg^{-1}K^{-1}, brine specific heat capacity 
     C_ps : float = 2100.0    # Jkg^{-1}K^{-1}, pure water ice specific heat capacity 
@@ -37,7 +36,7 @@ class Physical_Parameters:
     # Eutectic parameters
     C_E : int = 175         # g/kg, liquid salinity at the eutectic point for MgSO4-H20 system
     
-    
+
     # Water related parameters
     rho_0 : int = 1000       # kgm^{-3}, referencewater density at 0 overpressure, reference salinity
     rho_s : int = 917        # kgm^{-3}, pure water ice
@@ -63,15 +62,33 @@ class Physical_Parameters:
         
         Γ = T (1/ρ_s - 1/ρ_b) / L
         """
-        return self.T_m * (1 / self.rho_s - 1 / self.rho_b) / self.L_w    
+        return self.T_m * (1 / self.rho_s - 1 / self.rho_b) / self.L_w   
 
-    
 p = Physical_Parameters()
 
 
+####################################################################################
+# Store Domain Parameters
+####################################################################################
+class Domain_Parameters: 
+    def __init__(self):
+        self.R : float  = 500.0               # m, radius of the spherical inclusion
+        self.N : int    = 10000               # number of cells in the domain  
+        self.dr : float = self.R / self.N     # m, radial distance increment
+
+        self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, coordinates of cell faces
+        self.r_c : np.ndarray = self.r_f[: -1] + self.dr / 2           # m, coordinates of cell centres
+
+        self.A : np.ndarray = self.r_f ** 2   # m^2, surface area of spherical shell at r_f
+        self.V : np.ndarray = (self.r_f[1:] ** 3 - self.r_f[:-1] ** 3) / 3  # m^3, volume of spherical shells
+
+        self.dt : float = self.dr ** 2 /(2 * p.alpha * 10)  # s, time increment
+
+d = Domain_Parameters()
+
 
 ####################################################################################
-# Store states (not frozen)
+# Store States (not frozen)
 ####################################################################################
 @dataclass(frozen=False)
 class State: 
