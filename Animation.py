@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from classes import p, d
+from classes import d, h
 
 ####################################################################################
 # Plotting the evolution of the profile
 ####################################################################################
-def animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history):
+def plot_profiles():
     """ 
     Creates an animation that displays the temporal evolution of temperature, liquid 
     density, enthalpy, and bulk salinity. 
@@ -47,25 +47,26 @@ def animate_evolutions_profiles(T_history, rho_l_history, H_history, S_history):
         """ 
         Updates the inputs for the plots at each frame of the animation.
         """
-        temperature_plot.set_data(d.r_c, T_history[frame])
-        liquid_density_plot.set_data(d.r_c, rho_l_history[frame])
-        enthalpy_plot.set_data(d.r_c, H_history[frame])
-        bulk_salinity_plot.set_data(d.r_c, S_history[frame])
+        temperature_plot.set_data(d.r_c, h.T_history[frame])
+        liquid_density_plot.set_data(d.r_c, h.rho_l_history[frame])
+        enthalpy_plot.set_data(d.r_c, h.H_history[frame])
+        bulk_salinity_plot.set_data(d.r_c, h.S_history[frame])
 
-        t_years = (100 * frame + 1) * d.dt / (365.25 * 24 * 3600)
-        clock.set_text(f"t = {t_years:.2f} years")
+        clock.set_text(f"t = {h.time_history[frame]:.2f} years")
 
         return temperature_plot, liquid_density_plot, enthalpy_plot, bulk_salinity_plot, clock
 
-
     # Animation function
-    animation = FuncAnimation(
-                        fig = fig, 
-                        func = update_data,
-                        frames = len(T_history) ,  
-                        interval = 25,
-                            )
+    animation = FuncAnimation(fig=fig, func=update_data, frames=len(h.T_history), interval=25)
     plt.tight_layout()
     plt.show()
 
-    return animation
+    # Overpressure against time
+    plt.figure(figsize=(12,8))
+    plt.plot(h.time_history, h.dP_history)
+    plt.title("Overpressure Term Against Time")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Overpressure term (Pa)")
+    plt.show()
+
+    return

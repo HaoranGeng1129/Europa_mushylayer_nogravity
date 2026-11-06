@@ -67,14 +67,16 @@ class Physical_Parameters:
 p = Physical_Parameters()
 
 
+
 ####################################################################################
 # Store Domain Parameters
 ####################################################################################
 class Domain_Parameters: 
     def __init__(self):
-        self.R : float  = 500.0               # m, radius of the spherical inclusion
-        self.N : int    = 10000               # number of cells in the domain  
-        self.dr : float = self.R / self.N     # m, radial distance increment
+        self.N_iter : int = 100000              # number of iterations
+        self.R : float    = 500.0               # m, radius of the spherical inclusion
+        self.N : int      = 10000               # number of cells in the domain  
+        self.dr : float   = self.R / self.N     # m, radial distance increment
 
         self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, coordinates of cell faces
         self.r_c : np.ndarray = self.r_f[: -1] + self.dr / 2           # m, coordinates of cell centres
@@ -85,6 +87,7 @@ class Domain_Parameters:
         self.dt : float = self.dr ** 2 /(2 * p.alpha * 10)  # s, time increment
 
 d = Domain_Parameters()
+
 
 
 ####################################################################################
@@ -114,3 +117,48 @@ class State:
     rho_l_old   : np.ndarray    # Store old liquid density values
     chi_old     : np.ndarray    # Store old liquid fraction values
 
+state = State(
+        H = np.zeros(d.N), 
+        h_l = np.zeros(d.N), 
+        h_s = np.zeros(d.N), 
+        S = np.zeros(d.N), 
+        rho_l = np.full(d.N, p.rho_b), 
+        T = np.full(d.N, p.T_0), 
+        C = np.full(d.N, p.C_init), 
+        chi = np.ones(d.N),
+        dP = 0.0, 
+        u_r = np.zeros(d.N + 1), 
+        J = np.zeros(d.N + 1), 
+        q = np.zeros(d.N + 1), 
+        h_faces = np.zeros(d.N + 1), 
+        C_faces = np.zeros(d.N + 1), 
+        rho_l_faces = np.full(d.N + 1, p.rho_b), 
+        rho_l_old = np.zeros(d.N), 
+        chi_old = np.zeros(d.N)
+              ) 
+
+
+
+####################################################################################
+# Store Historic Data
+####################################################################################
+@dataclass(frozen=False)
+class Historic_Data:
+    T_history     : np.ndarray  # temperature 
+    rho_l_history : np.ndarray  # liquid density
+    H_history     : np.ndarray  # enthalpy
+    S_history     : np.ndarray  # bulk salinity
+
+    time_history  : np.ndarray
+    dP_history    : np.ndarray  # overpressure term 
+
+
+h = Historic_Data(
+        T_history     = np.zeros((d.N_iter // 100, d.N)), 
+        rho_l_history = np.zeros((d.N_iter // 100, d.N)), 
+        H_history     = np.zeros((d.N_iter // 100, d.N)),  
+        S_history     = np.zeros((d.N_iter // 100, d.N)),  
+
+        time_history  = np.zeros(d.N_iter // 100),
+        dP_history    = np.zeros(d.N_iter // 100)      
+                )
