@@ -1,7 +1,8 @@
 ####################################################################################
 # Main script
 ####################################################################################
-from classes import d, state, h
+import numpy as np
+from classes import p, d, state, h
 from functions import ( 
             calculate_liquid_enthalpy, 
             calculate_ice_enthalpy, 
@@ -19,12 +20,19 @@ from functions import (
 from phase_mask_and_inversion import inversion
 from Animation import plot_profiles
 
-# Compute initial state values
+# Initial values
+ice            = d.r_c > d.R_i
+state.chi[ice] = 0.0   
+state.T[ice]   = p.T_cold
+state.C[ice]   = 0.0
+
 state.rho_l = calculate_liquid_density(state)
 state.h_l   = calculate_liquid_enthalpy(state)
 state.h_s   = calculate_ice_enthalpy(state)
 state.H     = calculate_enthalpy(state)
 state.S     = calculate_bulk_salinity(state)
+
+M_0 = np.sum( (state.rho_l * state.chi + p.rho_s * (1 - state.chi) ) * d.V)
 
 # Iteration index        
 i = 0
@@ -53,23 +61,29 @@ while i < d.N_iter:
     # Obtain dP using the new parameters from inversion(), and update 
     # the enthalpy accounting for the overpressure term
     dP_old = state.dP
-    state.dP = calculate_overpressure_term(state, d.V)
+    state.dP = calculate_overpressure_term(state, M_0, d.V)
     increase_in_dP = state.dP - dP_old 
-
+    
     state.H += increase_in_dP
+
+    # Fracture condition
+    if state.dP > p.critical_overpressure:
+        print(state.dP)
+        break
 
     # Calculate lagged parameters 
     state.rho_l = calculate_liquid_density(state)
     state.J = calculate_brine_flux(state, d.V, d.dt) 
     state.u_r = calculate_radial_speed(state, d.r_f)
 
-    if i % 100 == 0:
-            h.T_history[i // 100, :]     = state.T.copy()     # temperature
-            h.rho_l_history[i // 100, :] = state.rho_l.copy() # liquid density 
-            h.H_history[i // 100, :]     = state.H.copy()     # enthalpy
-            h.S_history[i // 100, :]     = state.S.copy()     # bulk salinity
-            h.dP_history[i // 100]       = state.dP.copy()    # overpressure term
-            h.time_history[i // 100]     = (i + 1) * d.dt / (365.25 * 24 * 3600) 
+    # Store historic data
+    if i % 500 == 0:
+            h.T_history[i // 500, :]     = state.T.copy()     # temperature
+            h.rho_l_history[i // 500, :] = state.rho_l.copy() # liquid density 
+            h.H_history[i // 500, :]     = state.H.copy()     # enthalpy
+            h.S_history[i // 500, :]     = state.S.copy()     # bulk salinity
+            h.dP_history[i // 500]       = state.dP.copy()    # overpressure term
+            h.time_history[i // 500]     = (i + 1) * d.dt / (365.25 * 24 * 3600) 
 
     i += 1
 

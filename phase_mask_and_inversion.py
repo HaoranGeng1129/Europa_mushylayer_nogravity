@@ -72,7 +72,6 @@ def get_phase_masks(state):
     eutectic_mask: (H < H_E) & (H >= H_s)
     solid_mask: H < H_s
     """
-
     H_l = get_liquid_condition(state)
     H_E = get_eutectic_condition(state)
     H_s = get_solid_condition(state)
@@ -115,7 +114,6 @@ def calculate_liquid_fraction(state, phase_masks):
     
     χ in solid:
     χ = 0 
-    
     """
     H, S, chi, dP, rho_l = state.H, state.S, state.chi, state.dP, state.rho_l
 
@@ -140,7 +138,7 @@ def calculate_temperature(state, phase_masks):
     """ 
     Formula for temperature in liquid: 
     T = T_m + (H - ΔP - ρ_l L_w) / (ρ_l C_pl)
-        
+    
     Formula for temperature in mush: 
     T = T_m + (H - ΔP - ρ_l χ L_w) / (a0 + a1 χ)
     
@@ -192,8 +190,6 @@ def calculate_liquid_salinity(state, phase_masks):
     C[Solid] = 0.0
 
     return C
-
-
 
 
 def inversion(state):
