@@ -21,10 +21,10 @@ from Animation import plot_profiles
 
 # Compute initial state values
 state.rho_l = calculate_liquid_density(state)
-state.h_l = calculate_liquid_enthalpy(state)
-state.h_s = calculate_ice_enthalpy(state)
-state.H   = calculate_enthalpy(state)
-state.S   = calculate_bulk_salinity(state)
+state.h_l   = calculate_liquid_enthalpy(state)
+state.h_s   = calculate_ice_enthalpy(state)
+state.H     = calculate_enthalpy(state)
+state.S     = calculate_bulk_salinity(state)
 
 # Iteration index        
 i = 0
