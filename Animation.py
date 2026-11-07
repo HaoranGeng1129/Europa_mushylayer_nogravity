@@ -14,25 +14,25 @@ def plot_profiles():
     """
     fig, axis = plt.subplots(2, 2, figsize = (12, 8))
 
-    axis[0, 0].set_xlim(d.R_i - 50, d.R_i + 50)
-    axis[0, 0].set_ylim(220, 280)
+    axis[0, 0].set_xlim(d.R_i - 200, d.R_i + 200)
+    axis[0, 0].set_ylim(140, 280)
     axis[0, 0].set_xlabel(r"$r$ ($m$)")
     axis[0, 0].set_ylabel(r"$T$ ($K$)")
     axis[0, 0].set_title("Temperature")
 
-    axis[0, 1].set_xlim(d.R_i - 50, d.R_i + 50)
+    axis[0, 1].set_xlim(d.R_i - 200, d.R_i + 200)
     axis[0, 1].set_ylim(900, 1200)
     axis[0, 1].set_xlabel(r"$r$ ($m$)")
     axis[0, 1].set_ylabel(r"$\rho_l$ ($kg/m^3$)")
     axis[0, 1].set_title("Liquid Density")
 
-    axis[1, 0].set_xlim(d.R_i - 50, d.R_i + 50)
+    axis[1, 0].set_xlim(d.R_i - 200, d.R_i + 200)
     axis[1, 0].set_ylim(-5e8, 5e8)
     axis[1, 0].set_xlabel(r"$r$ ($m$)")
     axis[1, 0].set_ylabel(r"$H$ ($J/m^3$)")
     axis[1, 0].set_title("Enthalpy")
 
-    axis[1, 1].set_xlim(d.R_i - 50, d.R_i + 50)
+    axis[1, 1].set_xlim(d.R_i - 200, d.R_i + 200)
     axis[1, 1].set_ylim(0, 5e4)
     axis[1, 1].set_xlabel(r"$r$ ($m$)")
     axis[1, 1].set_ylabel(r"$S$ ($g/m^3$)")

@@ -10,14 +10,15 @@ class Physical_Parameters:
 
     # Temperature related parameters
     T_m : float    = 273.15    # K, pure water freezing temperature
-    T_cold : float = 222.0     # K, initial temperature of surrounding ice shell
-    T_B : float    = 222.0     # K, temperature at the domain boundary
+    T_cold : float = 142.0     # K, initial temperature of surrounding ice shell
+    T_B : float    = 142.0     # K, temperature at the domain boundary
     T_0 : float    = 275.0     # K, initial temperature of the liquid
     C_pl : int     = 3985      # Jkg^{-1}K^{-1}, brine specific heat capacity 
     C_ps : float   = 2100.0    # Jkg^{-1}K^{-1}, pure water ice specific heat capacity 
     L_w : float    = 3.335e5   # Jkg^{-1}, latent heat of fusion of water 
     k_l : float    = 0.6       # Wm^{-1}K^{-1}, liquid water thermal conductivity
     k_s : float    = 2.3       # Wm^{-1}K^{-1}, pure water ice thermal conductivity
+
 
     @property
     def alpha(self):
@@ -87,7 +88,7 @@ class Domain_Parameters:
 
         self.R_i : float  = 500.0               # m, radius of the resevoir
         self.R : float    = 1000.0              # m, radius of the entire domain
-        self.N : int      = 10000               # number of cells in the domain  
+        self.N : int      = 50000               # number of cells in the domain  
         self.dr : float   = self.R / self.N     # m, radial distance increment
 
         self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, coordinates of cell faces

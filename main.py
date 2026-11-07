@@ -68,7 +68,9 @@ while i < d.N_iter:
 
     # Fracture condition
     if state.dP > p.critical_overpressure:
-        print(state.dP)
+        print(f"Critical overpressure = {state.dP / 1e6:.4f} MPa")
+        t_fracture = (i + 1) * d.dt / (365.25 * 24 * 3600)
+        print(f"Time to fracture = {t_fracture:.4f} years")
         break
 
     # Calculate lagged parameters 
