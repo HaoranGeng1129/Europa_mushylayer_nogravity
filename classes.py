@@ -9,15 +9,15 @@ from dataclasses import dataclass
 class Physical_Parameters: 
 
     # Temperature related parameters
-    T_m : float    = 273.15    # K, pure water freezing temperature
-    T_cold : float = 142.0     # K, initial temperature of surrounding ice shell
-    T_B : float    = 142.0     # K, temperature at the domain boundary
-    T_0 : float    = 275.0     # K, initial temperature of the liquid
-    C_pl : int     = 3985      # Jkg^{-1}K^{-1}, brine specific heat capacity 
-    C_ps : float   = 2100.0    # Jkg^{-1}K^{-1}, pure water ice specific heat capacity 
-    L_w : float    = 3.335e5   # Jkg^{-1}, latent heat of fusion of water 
-    k_l : float    = 0.6       # Wm^{-1}K^{-1}, liquid water thermal conductivity
-    k_s : float    = 2.3       # Wm^{-1}K^{-1}, pure water ice thermal conductivity
+    T_m    : float = 273.15    # K, pure water freezing temperature
+    T_cold : float = 222.0     # K, initial temperature of surrounding ice shell
+    T_B    : float = 222.0     # K, temperature at the domain boundary
+    T_0    : float = 275.0     # K, initial temperature of the liquid
+    C_pl   : int   = 3985      # Jkg^{-1}K^{-1}, brine specific heat capacity 
+    C_ps   : float = 2100.0    # Jkg^{-1}K^{-1}, pure water ice specific heat capacity 
+    L_w    : float = 3.335e5   # Jkg^{-1}, latent heat of fusion of water 
+    k_l    : float = 0.6       # Wm^{-1}K^{-1}, liquid water thermal conductivity
+    k_s    : float = 2.3       # Wm^{-1}K^{-1}, pure water ice thermal conductivity
 
 
     @property
@@ -30,17 +30,17 @@ class Physical_Parameters:
         return self.k_l / (self.rho_0 * self.C_pl)
 
     # Salt related parameters
-    m : float = 0.0228      # K (g/kg)^{-1}, freezing point depression coefficient (salinity)
-    C_0 : float = 0.0       # g/kg, reference salinity in EOS
-    C_init : float = 35.0   # g/kg, initial salinity of the liquid
-    beta_S : float = 8.3e-4 # (g/kg)^{-1}, saline contraction coefficient
+    m      : float = 0.0228   # K (g/kg)^{-1}, freezing point depression coefficient
+    C_0    : float = 0.0      # g/kg, reference salinity in EOS
+    C_init : float = 35.0     # g/kg, initial salinity of the liquid
+    beta_S : float = 8.3e-4   # (g/kg)^{-1}, saline contraction coefficient
 
     # Eutectic parameters
-    C_E : int = 175         # g/kg, liquid salinity at the eutectic point for MgSO4-H20 system
+    C_E   : int = 175     # g/kg, liquid salinity at the eutectic point for MgSO4-H20
     
     # Water related parameters
-    rho_0 : int = 1000       # kgm^{-3}, referencewater density at 0 overpressure, reference salinity
-    rho_s : int = 917        # kgm^{-3}, pure water ice
+    rho_0 : int = 1000    # kgm^{-3}, reference water density at 0 overpressure, salinity
+    rho_s : int = 917     # kgm^{-3}, pure water ice
 
     @property
     def rho_b(self): 
@@ -52,11 +52,11 @@ class Physical_Parameters:
         return self.rho_0 * np.exp(self.beta_S * (self.C_init - self.C_0) )
 
     # Gravity relatd parameters
-    g : float     = 1.315       # ms^{-2}, gravity on Europa, Pappalardo et al. (2009)
+    g     : float = 1.315       # ms^{-2}, gravity on Europa, Pappalardo et al. (2009)
     depth : float = 2000.0      # m, depth of the resevoir, H in Lesage's paper
 
     # Pressure related parameters
-    beta : float    = 3.5e-10   # Pa^{-1}, liquid water compressibility
+    beta    : float = 3.5e-10   # Pa^{-1}, liquid water compressibility
     sigma_c : float = 1.5e6     # Pa , tensile strength of ice
 
     @property
@@ -87,15 +87,15 @@ class Domain_Parameters:
         self.N_iter : int = 500000              # number of iterations
 
         self.R_i : float  = 500.0               # m, radius of the resevoir
-        self.R : float    = 1000.0              # m, radius of the entire domain
-        self.N : int      = 50000               # number of cells in the domain  
-        self.dr : float   = self.R / self.N     # m, radial distance increment
+        self.R   : float  = 1000.0              # m, radius of the entire domain
+        self.N   : int    = 50000               # number of cells in the domain  
+        self.dr  : float  = self.R / self.N     # m, radial distance increment
 
-        self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, coordinates of cell faces
-        self.r_c : np.ndarray = self.r_f[: -1] + self.dr / 2           # m, coordinates of cell centres
+        self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, cell faces 
+        self.r_c : np.ndarray = self.r_f[: -1] + self.dr / 2           # m, cell centres
 
         self.A : np.ndarray = self.r_f ** 2   # m^2, surface area of spherical shell at r_f
-        self.V : np.ndarray = (self.r_f[1:] ** 3 - self.r_f[:-1] ** 3) / 3  # m^3, volume of spherical shells
+        self.V : np.ndarray = (self.r_f[1:] ** 3 - self.r_f[:-1] ** 3) / 3  # m^3, volume of shells
 
         self.dt : float = self.dr ** 2 /(2 * p.alpha * 10)  # s, time increment
 
