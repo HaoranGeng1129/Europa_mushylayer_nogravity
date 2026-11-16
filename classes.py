@@ -13,7 +13,7 @@ class Physical_Parameters:
     T_cold : float = 222.0     # K, initial temperature of surrounding ice shell
     T_B    : float = 222.0     # K, temperature at the domain boundary
     T_0    : float = 275.0     # K, initial temperature of the liquid
-    C_pl   : int   = 3985      # Jkg^{-1}K^{-1}, brine specific heat capacity 
+    C_pl   : float = 3985.0    # Jkg^{-1}K^{-1}, brine specific heat capacity 
     C_ps   : float = 2100.0    # Jkg^{-1}K^{-1}, pure water ice specific heat capacity 
     L_w    : float = 3.335e5   # Jkg^{-1}, latent heat of fusion of water 
     k_l    : float = 0.6       # Wm^{-1}K^{-1}, liquid water thermal conductivity
@@ -25,18 +25,15 @@ class Physical_Parameters:
         """
         m^{2}s^{-1}, liquid water thermal diffusivity
         
-        α = k_l / (ρ_0 C_pl)
+        α = k_s / (ρ_0 C_pl)
         """
-        return self.k_l / (self.rho_0 * self.C_pl)
+        return self.k_s / (self.rho_0 * self.C_pl)
 
     # Salt related parameters
     m      : float = 0.0228   # K (g/kg)^{-1}, freezing point depression coefficient
     C_0    : float = 0.0      # g/kg, reference salinity in EOS
     C_init : float = 35.0     # g/kg, initial salinity of the liquid
-    beta_S : float = 8.3e-4   # (g/kg)^{-1}, saline contraction coefficient
-
-    # Eutectic parameters
-    C_E   : int = 175     # g/kg, liquid salinity at the eutectic point for MgSO4-H20
+    beta_S : float = 8.3e-4   # (g/kg)^{-1}, saline contraction coefficient    
     
     # Water related parameters
     rho_0 : int = 1000    # kgm^{-3}, reference water density at 0 overpressure, salinity
@@ -50,6 +47,16 @@ class Physical_Parameters:
         ρ_b = ρ_0 exp{β_S (C_init - C_0)}
         """
         return self.rho_0 * np.exp(self.beta_S * (self.C_init - self.C_0) )
+
+    # Eutectic parameters
+    C_E   : int = 175     # g/kg, liquid salinity at the eutectic point for MgSO4-H20
+
+    @property
+    def S_ice(self):
+        """ 
+        g/m^3, bulk salinity of the surrounding ice
+        """
+        return self.rho_b * self.C_init
 
     # Gravity relatd parameters
     g     : float = 1.315       # ms^{-2}, gravity on Europa, Pappalardo et al. (2009)
@@ -84,11 +91,11 @@ p = Physical_Parameters()
 ####################################################################################
 class Domain_Parameters: 
     def __init__(self):
-        self.N_iter : int = 500000              # number of iterations
+        self.N_iter : int = 10**7               # number of iterations
+        self.N      : int = 20000               # number of cells in the domain  
 
         self.R_i : float  = 500.0               # m, radius of the resevoir
         self.R   : float  = 1000.0              # m, radius of the entire domain
-        self.N   : int    = 50000               # number of cells in the domain  
         self.dr  : float  = self.R / self.N     # m, radial distance increment
 
         self.r_f : np.ndarray = np.arange(0, self.N + 1, 1) * self.dr  # m, cell faces 

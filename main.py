@@ -26,11 +26,12 @@ state.chi[ice] = 0.0
 state.T[ice]   = p.T_cold
 state.C[ice]   = 0.0
 
-state.rho_l = calculate_liquid_density(state)
-state.h_l   = calculate_liquid_enthalpy(state)
-state.h_s   = calculate_ice_enthalpy(state)
-state.H     = calculate_enthalpy(state)
-state.S     = calculate_bulk_salinity(state)
+state.rho_l  = calculate_liquid_density(state)
+state.h_l    = calculate_liquid_enthalpy(state)
+state.h_s    = calculate_ice_enthalpy(state)
+state.H      = calculate_enthalpy(state)
+state.S      = calculate_bulk_salinity(state)
+state.S[ice] = p.S_ice
 
 M_0 = np.sum( (state.rho_l * state.chi + p.rho_s * (1 - state.chi) ) * d.V)
 
@@ -71,6 +72,7 @@ while i < d.N_iter:
         print(f"Critical overpressure = {state.dP / 1e6:.4f} MPa")
         t_fracture = (i + 1) * d.dt / (365.25 * 24 * 3600)
         print(f"Time to fracture = {t_fracture:.4f} years")
+        print(f"Number of iterations required = {i}")
         break
 
     # Calculate lagged parameters 
@@ -80,14 +82,18 @@ while i < d.N_iter:
 
     # Store historic data
     if i % 500 == 0:
-            h.T_history[i // 500, :]     = state.T.copy()     # temperature
-            h.rho_l_history[i // 500, :] = state.rho_l.copy() # liquid density 
-            h.H_history[i // 500, :]     = state.H.copy()     # enthalpy
-            h.S_history[i // 500, :]     = state.S.copy()     # bulk salinity
-            h.dP_history[i // 500]       = state.dP.copy()    # overpressure term
+            h.T_history[i // 500, :]     = state.T  
+            h.rho_l_history[i // 500, :] = np.where(state.chi > 0, state.rho_l, 0.0)  
+            h.H_history[i // 500, :]     = state.H     
+            h.S_history[i // 500, :]     = state.S / 1000     
+            h.dP_history[i // 500]       = state.dP    
             h.time_history[i // 500]     = (i + 1) * d.dt / (365.25 * 24 * 3600) 
 
     i += 1
+
+# Printing key parameters
+print(f"Time increment = {d.dt :.4f} s")
+print(f"Cell size = {d.dr :.4f} m")
 
 # Plot the temporal evolution animations and overpressure against time
 plot_profiles()

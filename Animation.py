@@ -20,7 +20,7 @@ def plot_profiles():
     axis[0, 0].set_ylabel(r"$T$ ($K$)")
     axis[0, 0].set_title("Temperature")
 
-    axis[0, 1].set_xlim(d.R_i - 50, d.R_i + 50)
+    axis[0, 1].set_xlim(d.R_i - 10, d.R_i + 10)
     axis[0, 1].set_ylim(950, 1200)
     axis[0, 1].set_xlabel(r"$r$ ($m$)")
     axis[0, 1].set_ylabel(r"$\rho_l$ ($kg/m^3$)")
@@ -32,16 +32,16 @@ def plot_profiles():
     axis[1, 0].set_ylabel(r"$H$ ($J/m^3$)")
     axis[1, 0].set_title("Enthalpy")
 
-    axis[1, 1].set_xlim(d.R_i - 50, d.R_i + 50)
-    axis[1, 1].set_ylim(0, 5e4)
+    axis[1, 1].set_xlim(d.R_i - 10, d.R_i + 10)
+    axis[1, 1].set_ylim(25, 40)
     axis[1, 1].set_xlabel(r"$r$ ($m$)")
-    axis[1, 1].set_ylabel(r"$S$ ($g/m^3$)")
+    axis[1, 1].set_ylabel(r"$S$ ($kg/m^3$)")
     axis[1, 1].set_title("Bulk Salinity")
 
     temperature_plot,     = axis[0, 0].plot([], [])
-    liquid_density_plot,  = axis[0, 1].plot([], [])
+    liquid_density_plot,  = axis[0, 1].plot([], [], marker='x', markersize=3, markeredgecolor='red')
     enthalpy_plot,        = axis[1, 0].plot([], [])
-    bulk_salinity_plot,   = axis[1, 1].plot([], [])
+    bulk_salinity_plot,   = axis[1, 1].plot([], [], marker='x', markersize=3, markeredgecolor='red')
 
     clock = fig.suptitle("t = 0.00 years")
 
